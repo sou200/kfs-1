@@ -24,4 +24,5 @@ _start:
     cli
     mov esp, stack_top
     call kernel_main
-    htl
+    hlt
+    jmp _start

@@ -1,23 +1,31 @@
-CC = gcc
+CC   = gcc
 NASM = nasm
-LD = ld
+LD   = ld
 
-CFLAGS  = -m32 -ffreestanding -O2 -Wall -Wextra
-LDFLAGS = -m elf_i386 -T linker.ld
+CFLAGS    = -m32 -ffreestanding -O2 -Wall -Wextra
+NASMFLAGS = -f elf32
+LDFLAGS   = -m elf_i386 -T linker.ld
 
 KERNEL = kernel.bin
 ISO    = mykernel.iso
 
-all: $(KERNEL)
+ASM_SRCS = boot.asm
+C_SRCS = kernel.c vga.c
 
-boot.o: boot.asm
-	$(NASM) -f elf32 $< -o $@
+ASM_OBJS = $(ASM_SRCS:.asm=.o)
+C_OBJS   = $(C_SRCS:.c=.o)
+OBJS     = $(ASM_OBJS) $(C_OBJS)
 
-kernel.o: kernel.c
+all: $(KERNEL) iso
+
+$(KERNEL): $(OBJS) linker.ld
+	$(LD) $(LDFLAGS) -o $@ $(OBJS)
+
+%.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
-$(KERNEL): boot.o kernel.o linker.ld
-	$(LD) $(LDFLAGS) -o $@ boot.o kernel.o
+%.o: %.asm
+	$(NASM) $(NASMFLAGS) $< -o $@
 
 iso: $(ISO)
 
@@ -26,7 +34,7 @@ $(ISO): $(KERNEL) boot/grub/grub.cfg
 	mkdir -p isodir/boot/grub
 	cp $(KERNEL) isodir/boot/kernel.bin
 	cp boot/grub/grub.cfg isodir/boot/grub/grub.cfg
-	grub-mkrescue -o $@ isodir --compress=xz --install-modules="multiboot"
+	grub-mkrescue -o $@ isodir
 
 run: $(ISO)
 	qemu-system-i386 -cdrom $(ISO) -m 512
@@ -35,6 +43,7 @@ run-kernel: $(KERNEL)
 	qemu-system-i386 -kernel $(KERNEL)
 
 clean:
-	rm -rf *.o $(ISO) $(KERNEL) isodir
+	rm -rf $(OBJS) $(ISO) $(KERNEL) isodir
+
 
 .PHONY: all iso run run-kernel clean
