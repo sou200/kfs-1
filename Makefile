@@ -9,8 +9,8 @@ LDFLAGS   = -m elf_i386 -T linker.ld
 KERNEL = kernel.bin
 ISO    = mykernel.iso
 
-ASM_SRCS = boot.asm
-C_SRCS = kernel.c vga.c
+ASM_SRCS = boot.asm isr_stub.asm
+C_SRCS = kernel.c vga.c io.c idt.c isr.c
 
 ASM_OBJS = $(ASM_SRCS:.asm=.o)
 C_OBJS   = $(C_SRCS:.c=.o)
