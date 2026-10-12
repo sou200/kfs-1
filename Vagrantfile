@@ -21,7 +21,6 @@ Vagrant.configure("2") do |config|
       nasm \
       xorriso mtools \
       make
-    #   grub-pc-bin grub-common \
     echo "Toolchain ready."
   SHELL
 end

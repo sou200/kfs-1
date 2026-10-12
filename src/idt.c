@@ -1,8 +1,6 @@
 /* idt.c - simplest possible IDT (works with isr.asm) */
 #include <stdint.h>
 
-extern void IRQ_handler(uint32_t int_code);
-
 struct idt_entry {
     uint16_t base_lo;
     uint16_t selector;
@@ -31,24 +29,6 @@ static void idt_set_gate(int n, void (*handler)(void), uint16_t sel) {
     idt[n].zero     = 0;
     idt[n].flags    = 0x8E;     /* present, ring 0, interrupt gate */
 }
-
-/* Called from isr.asm */
-// void irq_handler(int n) {
-//     char buffer[2] = {0};
-
-//     if (n == 32) {
-//         /* timer tick: your code here */
-//     }
-//     if (n == 33) {
-//         uint8_t scancode;
-//         __asm__ volatile ("inb %1, %0" : "=a"(scancode) : "Nd"((uint16_t)0x60));
-//         buffer[0] = qwerty_to_ascii_low[scancode];
-//         if (scancode < 0x81)
-//             vga_print(buffer);
-//         /* keyboard: your code here */
-//     }
-//     __asm__ volatile ("outb %0, %1" : : "a"((uint8_t)0x20), "Nd"((uint16_t)0x20));  /* EOI */
-// }
 
 void idt_init(void) {
     uint16_t cs;
