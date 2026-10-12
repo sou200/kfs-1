@@ -22,10 +22,10 @@ void vga_update_cursor(void)
 {
     uint16_t pos = cursor_row * VGA_WIDTH + cursor_col;
 
-    outb(0x3D4, 0x0F);              /* select cursor low byte  */
-    outb(0x3D5, pos & 0xFF);
-    outb(0x3D4, 0x0E);              /* select cursor high byte */
-    outb(0x3D5, pos >> 8);
+    outb(CURSOR_CMD, 0x0F);              /* select cursor low byte  */
+    outb(CURSOR_DATA, pos & 0xFF);
+    outb(CURSOR_CMD, 0x0E);              /* select cursor high byte */
+    outb(CURSOR_DATA, pos >> 8);
 }
 
 static void vga_newline(void)
@@ -33,6 +33,7 @@ static void vga_newline(void)
     cursor_col = 0;
     if (++cursor_row >= VGA_HEIGHT)
         vga_scroll();
+    vga_print("kfs1> ");
     vga_update_cursor();
 }
 

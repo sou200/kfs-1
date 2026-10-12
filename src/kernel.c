@@ -10,5 +10,4 @@ void kernel_main() {
     idt_init();
     asm volatile ("sti");
     vga_clear();
-    vga_print("hello\nworld");
 }

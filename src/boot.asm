@@ -20,8 +20,11 @@ section .text
 global _start
 extern kernel_main
 
+idle:
+    hlt
+    jmp idle
+
 _start:
     mov esp, stack_top
     call kernel_main
-    hlt
-    jmp $
+    jmp idle

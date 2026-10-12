@@ -32,12 +32,12 @@ static void idt_set_gate(int n, void (*handler)(void), uint16_t sel) {
 
 void idt_init(void) {
     uint16_t cs;
-    __asm__ volatile ("mov %%cs, %0" : "=r"(cs));   /* GRUB's code selector */
+    asm volatile ("mov %%cs, %0" : "=r"(cs));   /* GRUB's code selector */
 
     idt_set_gate(32, IRQ0, cs);
     idt_set_gate(33, IRQ1, cs);
 
     idtp.limit = sizeof(idt) - 1;
     idtp.base  = (uint32_t)&idt;
-    __asm__ volatile ("lidt %0" : : "m"(idtp));
+    asm volatile ("lidt %0" : : "m"(idtp));
 }
