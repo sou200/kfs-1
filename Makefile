@@ -10,7 +10,7 @@ LDFLAGS = -m elf_i386 -T linker.ld
 
 # ADD YOUR NEW FILES HERE
 #
-OBJS = boot.o kernel.o terminal.o keyboard.o vga_cursor.o
+OBJS = boot.o printk.o kernel.o terminal.o keyboard.o vga_cursor.o
 
 all: $(ISO)
 

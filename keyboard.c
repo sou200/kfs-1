@@ -6,6 +6,8 @@
 
 /* Tell the compiler this function exists in terminal.c */
 extern void terminal_putchar(char c);
+extern void terminal_lock_input(void);
+
 
 /* AZERTY (French) Scan Code Set 1 Lookup Table */
 static const char kbd_azerty[128] = {
@@ -39,6 +41,8 @@ uint8_t read_scancode(void) {
     return inb(KBD_DATA_PORT);
 }
 
+extern void terminal_switch(int new_screen);
+
 void keyboard_loop(void) {
     while (1) {
         uint8_t scancode = read_scancode();
@@ -48,13 +52,20 @@ void keyboard_loop(void) {
             continue;
         }
 
-        /* Translate the scancode to an ASCII character.
-           Change kbd_us to kbd_azerty if you are using a French keyboard layout! */
+        /* Virtual Terminal Switching (F1 - F4) */
+        if (scancode == 0x3B) { terminal_switch(0); continue; }
+        if (scancode == 0x3C) { terminal_switch(1); continue; }
+        if (scancode == 0x3D) { terminal_switch(2); continue; }
+        if (scancode == 0x3E) { terminal_switch(3); continue; }
+
+        /* Translate the scancode to an ASCII character using AZERTY */
         char c = kbd_azerty[scancode];
         
-        /* If the character is valid, print it to the screen */
         if (c != 0) {
-            terminal_putchar(c);
+	    terminal_putchar(c);
+            if (c == '\n') {
+                terminal_lock_input(); /* Lock the new line */
+            }
         }
     }
 }

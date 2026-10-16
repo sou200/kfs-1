@@ -11,17 +11,17 @@ void terminal_writestring(const char* data) {
     }
 }
 
+extern void printk(const char* format, ...);
+
 void kmain(void) {
-    /* 1. Setup the screen and cursor */
     terminal_initialize();
     enable_cursor(14, 15);
 
-    /* 2. Print the required project output */
-    terminal_writestring("42\n");
-    terminal_writestring("Welcome to KFS-1. Type something:\n> ");
+    printk("42\n");
+    printk("Welcome to KFS-1, %s!\n", "student");
+    printk("Current hex test: %x\n", 0x1337);
+    printk("Press F1-F4 to switch virtual terminals.\n> ");
 
-    /* 3. Enter the infinite keyboard polling loop.
-       (Inside keyboard.c, make sure `keyboard_loop` calls `terminal_putchar(c)` 
-       when a valid ASCII key is pressed). */
     keyboard_loop();
 }
+
