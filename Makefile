@@ -30,6 +30,9 @@ $(ISO): $(NAME)
 	# Using the local path fix from earlier
 	PATH="$$HOME/.local/usr/bin:$$PATH" grub-mkrescue -d $$HOME/.local/usr/lib/grub/i386-pc -o $(ISO) isodir
 
+run: $(ISO)
+	qemu-system-i386 -cdrom $(ISO)
+
 debug: $(NAME)
 	qemu-system-i386 -kernel $(NAME)
 
