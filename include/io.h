@@ -3,6 +3,12 @@
 
 #include <stdint.h>
 
+
+#define CURSOR_CMD   0x3D4
+#define CURSOR_DATA  0x3D5
+
+#define KEYBOARD_SCANCODE 0x60
+
 #define PIC1_CMD   0x20
 #define PIC1_DATA  0x21
 #define PIC2_CMD   0xA0

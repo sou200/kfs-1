@@ -1,5 +1,6 @@
 /* keyboard_map.c - QWERTY (US) scancode set 1 -> ASCII, with Shift and Caps Lock */
 #include "screen.h"
+#include "io.h"
 
 /* Index = scancode. Unlisted entries are 0 (no character). */
 static const char normal[128] = {
@@ -72,7 +73,7 @@ void keyboard_handler()
 {
     uint8_t scancode;
     uint8_t character;
-    asm volatile ("inb %1, %0" : "=a"(scancode) : "Nd"((uint16_t)0x60));
+    asm volatile ("inb %1, %0" : "=a"(scancode) : "Nd"(KEYBOARD_SCANCODE));
     character = scancode_to_char(scancode);
     if (character)
         vga_putchar(character);

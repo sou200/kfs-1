@@ -11,7 +11,6 @@ align 4
     dd CHECKSUM
 
 section .bss
-align 16
 stack_bottom:
     resb 16384              ; 16 KiB stack
 stack_top:
