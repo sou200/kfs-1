@@ -139,3 +139,15 @@ void terminal_writestring(const char* data) {
     }
 }
 
+void terminal_change_color(void) {
+    /* Increment the color, but keep it within the 0-15 range (0x0F) */
+    uint8_t next_color = (terminal_color + 1) & 0x0F;
+    
+    /* If the color becomes 0 (black text on a black background), skip to 1 (blue) */
+    if (next_color == 0) {
+        next_color = 1;
+    }
+    
+    terminal_color = next_color;
+}
+

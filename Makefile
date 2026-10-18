@@ -14,7 +14,7 @@ OBJS = boot.o printk.o kernel.o terminal.o keyboard.o vga_cursor.o
 
 all: $(ISO)
 
-%.o: %.s
+%.o: %.asm
 	$(AS) $(ASFLAGS) $< -o $@
 
 %.o: %.c

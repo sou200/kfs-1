@@ -10,13 +10,13 @@ extern void terminal_lock_input(void);
 
 
 /* AZERTY (French) Scan Code Set 1 Lookup Table */
-static const char kbd_azerty[128] = {
-    0,  27, '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', ')', '=', '\b',
-  '\t', 'a', 'z', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '^', '$', '\n',
+static const char kbd_us[128] = {
+    0,  27, '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=', '\b',
+  '\t', 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '[', ']', '\n',
     0, /* 29 - Left Control */
-  'q', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'm', 'u', '*',
+  'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';', '\'', '`',
     0, /* 42 - Left Shift */
-   '<', 'w', 'x', 'c', 'v', 'b', 'n', ',', ';', ':', '!',
+ '\\', 'z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '/',
     0, /* 54 - Right Shift */
   '*',
     0, /* 56 - Alt */
@@ -42,6 +42,8 @@ uint8_t read_scancode(void) {
 }
 
 extern void terminal_switch(int new_screen);
+extern void terminal_change_color(void);
+
 
 void keyboard_loop(void) {
     while (1) {
@@ -57,9 +59,13 @@ void keyboard_loop(void) {
         if (scancode == 0x3C) { terminal_switch(1); continue; }
         if (scancode == 0x3D) { terminal_switch(2); continue; }
         if (scancode == 0x3E) { terminal_switch(3); continue; }
+                if (scancode & 0x80) continue;
+        /* Color Switching (F5) */
+        if (scancode == 0x3F) { terminal_change_color(); continue; }
+
 
         /* Translate the scancode to an ASCII character using AZERTY */
-        char c = kbd_azerty[scancode];
+        char c = kbd_us[scancode];
         
         if (c != 0) {
 	    terminal_putchar(c);
