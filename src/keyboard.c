@@ -1,4 +1,3 @@
-/* keyboard_map.c - QWERTY (US) scancode set 1 -> ASCII, with Shift and Caps Lock */
 #include "screen.h"
 #include "io.h"
 
@@ -45,28 +44,20 @@ static int caps_lock  = 0;
 char scancode_to_char(uint8_t sc)
 {
     int released = sc & 0x80;       /* bit 7 set = key release */
-    sc &= 0x7F;
-
-    if (sc == 0x2A || sc == 0x36) { /* left / right shift */
-        shift_down = !released;
-        return 0;
-    }
     if (released)
         return 0;
+    if (sc == 0x0E)
+    {
+        vga_backspace();
+        return 0;
+    }
 
     if (sc == 0x3A) {               /* caps lock toggles on press */
         caps_lock = !caps_lock;
         return 0;
     }
 
-    char c = normal[sc];
-
-    /* Letters: Shift and Caps Lock cancel each other out */
-    if (c >= 'a' && c <= 'z')
-        return (shift_down ^ caps_lock) ? c - 32 : c;
-
-    /* Everything else: only Shift matters */
-    return shift_down ? shifted[sc] : c;
+    return caps_lock ? shifted[sc] : normal[sc];
 }
 
 void keyboard_handler()
