@@ -6,10 +6,6 @@ static volatile uint16_t *const vga = (volatile uint16_t *)0xB8000;
 static int cursor_row = 0;
 static int cursor_col = 0;
 
-static uint16_t screen_buffers[NUM_SCREENS][VGA_WIDTH * VGA_HEIGHT];
-static int cursor_x[NUM_SCREENS];
-static int cursor_y[NUM_SCREENS]; 
-
 static void vga_scroll(void)
 {
     for (int i = 0; i < (VGA_HEIGHT - 1) * VGA_WIDTH; i++)
@@ -85,5 +81,3 @@ void vga_backspace(void)
         ((uint16_t)VGA_COLOR_WHITE_BLUE << 8) | ' ';
     vga_update_cursor();
 }
-
-
