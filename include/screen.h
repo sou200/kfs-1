@@ -13,5 +13,7 @@ void vga_putchar(char c);
 void vga_print(const char *s);
 void vga_clear(void);
 void vga_backspace(void);
+void terminal_switch(int new_screen);
+void terminal_change_color(void);
 
 #endif

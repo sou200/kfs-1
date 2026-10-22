@@ -9,6 +9,10 @@ static int cursor_col = 0;
 static uint16_t screen_buffers[NUM_SCREENS][VGA_WIDTH * VGA_HEIGHT];
 static int cursor_x[NUM_SCREENS];
 static int cursor_y[NUM_SCREENS]; 
+static uint8_t terminal_color = 0X1F;
+static int cursor_x[NUM_SCREENS];
+static int cursor_y[NUM_SCREENS];
+static int active_screen = 0;
 
 static void vga_scroll(void)
 {
@@ -53,7 +57,7 @@ void vga_putchar(char c)
     }
 
     vga[cursor_row * VGA_WIDTH + cursor_col] =
-        ((uint16_t)VGA_COLOR_WHITE_BLUE << 8) | (uint8_t)c;
+        (uint16_t) c | (uint16_t) terminal_color << 8;
 
     if (++cursor_col >= VGA_WIDTH)
         vga_newline();
@@ -87,3 +91,41 @@ void vga_backspace(void)
 }
 
 
+void terminal_change_color(void) {
+    /* Extract the current foreground color and increment it */
+    uint8_t fg = (terminal_color + 1) & 0x0F;
+    
+    /* If the foreground becomes 1 (blue text on blue background), skip to 2 (green) */
+    if (fg == 1) {
+        fg = 2;
+    }
+    
+    /* Combine the blue background (0x10) with the new foreground color */
+    terminal_color = 0x10 | fg;
+}
+
+void terminal_switch(int new_screen) {
+    if (new_screen < 0 || new_screen >= NUM_SCREENS || new_screen == active_screen) {
+        return;
+    }
+
+    /* Save current VGA memory and cursor to the active screen's backup */
+    for (int i = 0; i < VGA_WIDTH * VGA_HEIGHT; i++) {
+        screen_buffers[active_screen][i] = vga[i];
+    }
+    cursor_x[active_screen] = cursor_col;
+    cursor_y[active_screen] = cursor_row;
+
+    /* Update the active screen index */
+    active_screen = new_screen;
+
+    /* Load the new screen's backup into physical VGA memory */
+    for (int i = 0; i < VGA_WIDTH * VGA_HEIGHT; i++) {
+        vga[i] = screen_buffers[active_screen][i];
+    }
+    cursor_col = cursor_x[active_screen];
+    cursor_row = cursor_y[active_screen];
+
+    /* Move the hardware cursor to match the new screen */
+    vga_update_cursor();
+}

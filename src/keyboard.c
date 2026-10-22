@@ -36,7 +36,7 @@ static const char shifted[128] = {
     ' ',
 };
 
-static int shift_down = 0;
+// static int shift_down = 0;
 static int caps_lock  = 0;
 
 /* Feed it the raw byte from port 0x60.
@@ -60,12 +60,66 @@ char scancode_to_char(uint8_t sc)
     return caps_lock ? shifted[sc] : normal[sc];
 }
 
+// static void print_hex(unsigned int num) {
+//     const char hex_chars[] = "0123456789abcdef";
+//     char buffer[8];
+//     int i = 0;
+//     if (num == 0) {
+//         vga_putchar('0');
+//         return;
+//     }
+//     while (num > 0) {
+//         buffer[i++] = hex_chars[num % 16];
+//         num /= 16;
+//     }
+//     while (--i >= 0) {
+//         vga_putchar(buffer[i]);
+//     }
+// }
+
 void keyboard_handler()
 {
     uint8_t scancode;
     uint8_t character;
     asm volatile ("inb %1, %0" : "=a"(scancode) : "Nd"(KEYBOARD_SCANCODE));
     character = scancode_to_char(scancode);
+    
+    // vga_print("- ");
+    // print_hex(scancode);
+    // vga_print(" - \\");
+
+    // if (scancode & 0x80) return;
+    
+
+    if (scancode == 0x3B)
+    {
+        vga_print("yes F1 !!");
+        terminal_switch(0);
+        
+    }
+    if (scancode == 0x3C)
+    {
+        vga_print("yes F2 !!");
+        terminal_switch(1);
+        vga_clear();
+    }
+    if (scancode == 0x3D)
+    {
+        vga_print("yes F3 !!");
+        terminal_switch(2);
+        vga_clear();
+    }
+    if (scancode == 0x3E)
+    {
+        vga_print("yes F4 !!");
+        terminal_switch(3);
+        vga_clear();
+    }
+    if (scancode == 0x3F)
+    {
+        vga_print("yes color changed!!");
+        terminal_change_color();
+    }
     if (character)
         vga_putchar(character);
 }
