@@ -9,5 +9,6 @@ void kernel_main() {
     pic_remap(0x20, 0x28);
     idt_init();
     asm volatile ("sti");
-    vga_clear();
+    init_terminals();
+    vga_print("42");
 }

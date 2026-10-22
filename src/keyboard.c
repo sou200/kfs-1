@@ -1,5 +1,6 @@
 #include "screen.h"
 #include "io.h"
+#include "keyboard.h"
 
 /* Index = scancode. Unlisted entries are 0 (no character). */
 static const char normal[128] = {
@@ -82,44 +83,37 @@ void keyboard_handler()
     uint8_t scancode;
     uint8_t character;
     asm volatile ("inb %1, %0" : "=a"(scancode) : "Nd"(KEYBOARD_SCANCODE));
-    character = scancode_to_char(scancode);
     
-    // vga_print("- ");
-    // print_hex(scancode);
-    // vga_print(" - \\");
-
-    // if (scancode & 0x80) return;
-    
-
-    if (scancode == 0x3B)
+    if (scancode == F1_SCANCODE)
     {
         vga_print("yes F1 !!");
         terminal_switch(0);
-        
     }
-    if (scancode == 0x3C)
+    else if (scancode == F2_SCANCODE)
     {
         vga_print("yes F2 !!");
         terminal_switch(1);
-        vga_clear();
     }
-    if (scancode == 0x3D)
+    else if (scancode == F3_SCANCODE)
     {
         vga_print("yes F3 !!");
         terminal_switch(2);
-        vga_clear();
     }
-    if (scancode == 0x3E)
+    else if (scancode == F4_SCANCODE)
     {
         vga_print("yes F4 !!");
         terminal_switch(3);
-        vga_clear();
     }
-    if (scancode == 0x3F)
+    else if (scancode == F5_SCANCODE)
     {
         vga_print("yes color changed!!");
         terminal_change_color();
     }
-    if (character)
-        vga_putchar(character);
+    else
+    {
+        character = scancode_to_char(scancode);
+        if (character)
+            vga_putchar(character);
+    }
+
 }

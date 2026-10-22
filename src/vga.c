@@ -2,17 +2,17 @@
 #include "screen.h"
 #include "io.h"
 
-static volatile uint16_t *const vga = (volatile uint16_t *)0xB8000;
-static int cursor_row = 0;
-static int cursor_col = 0;
+volatile uint16_t *const vga = (volatile uint16_t *)0xB8000;
+int cursor_row = 0;
+int cursor_col = 0;
 
-static uint16_t screen_buffers[NUM_SCREENS][VGA_WIDTH * VGA_HEIGHT];
-static int cursor_x[NUM_SCREENS];
-static int cursor_y[NUM_SCREENS]; 
-static uint8_t terminal_color = 0X1F;
-static int cursor_x[NUM_SCREENS];
-static int cursor_y[NUM_SCREENS];
-static int active_screen = 0;
+uint16_t screen_buffers[NUM_SCREENS][VGA_WIDTH * VGA_HEIGHT];
+int cursor_x[NUM_SCREENS];
+int cursor_y[NUM_SCREENS]; 
+uint8_t terminal_color = 0X1F;
+int cursor_x[NUM_SCREENS];
+int cursor_y[NUM_SCREENS];
+int active_screen = 0;
 
 static void vga_scroll(void)
 {
@@ -41,7 +41,6 @@ static void vga_newline(void)
     cursor_col = 0;
     if (++cursor_row >= VGA_HEIGHT)
         vga_scroll();
-    vga_print("kfs1> ");
     vga_update_cursor();
 }
 
@@ -80,10 +79,6 @@ void vga_clear(void)
 
 void vga_backspace(void)
 {
-    /* Don't erase the prompt "kfs1> " (6 chars) */
-    if (cursor_col <= 6)
-        return;
-
     cursor_col--;
     vga[cursor_row * VGA_WIDTH + cursor_col] =
         ((uint16_t)VGA_COLOR_WHITE_BLUE << 8) | ' ';
@@ -128,4 +123,16 @@ void terminal_switch(int new_screen) {
 
     /* Move the hardware cursor to match the new screen */
     vga_update_cursor();
+}
+
+void init_terminals() {
+
+    for (int term = 1; term < 4; term++)
+    {
+        /* Save current VGA memory and cursor to the active screen's backup */
+        for (int i = 0; i < VGA_WIDTH * VGA_HEIGHT; i++) {
+            screen_buffers[term][i] = ((uint16_t)VGA_COLOR_WHITE_BLUE << 8) | ' ';
+        }
+    }
+    vga_clear();
 }
