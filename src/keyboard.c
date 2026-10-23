@@ -37,14 +37,11 @@ static const char shifted[128] = {
     ' ',
 };
 
-// static int shift_down = 0;
 static int caps_lock  = 0;
 
-/* Feed it the raw byte from port 0x60.
- * Returns the ASCII character, or 0 if the byte isn't a printable key press. */
 char scancode_to_char(uint8_t sc)
 {
-    int released = sc & 0x80;       /* bit 7 set = key release */
+    int released = sc & 0x80;
     if (released)
         return 0;
     if (sc == 0x0E)
@@ -53,30 +50,13 @@ char scancode_to_char(uint8_t sc)
         return 0;
     }
 
-    if (sc == 0x3A) {               /* caps lock toggles on press */
+    if (sc == 0x3A) {
         caps_lock = !caps_lock;
         return 0;
     }
 
     return caps_lock ? shifted[sc] : normal[sc];
 }
-
-// static void print_hex(unsigned int num) {
-//     const char hex_chars[] = "0123456789abcdef";
-//     char buffer[8];
-//     int i = 0;
-//     if (num == 0) {
-//         vga_putchar('0');
-//         return;
-//     }
-//     while (num > 0) {
-//         buffer[i++] = hex_chars[num % 16];
-//         num /= 16;
-//     }
-//     while (--i >= 0) {
-//         vga_putchar(buffer[i]);
-//     }
-// }
 
 void keyboard_handler()
 {
@@ -85,30 +65,15 @@ void keyboard_handler()
     asm volatile ("inb %1, %0" : "=a"(scancode) : "Nd"(KEYBOARD_SCANCODE));
     
     if (scancode == F1_SCANCODE)
-    {
-        vga_print("yes F1 !!");
         terminal_switch(0);
-    }
     else if (scancode == F2_SCANCODE)
-    {
-        vga_print("yes F2 !!");
         terminal_switch(1);
-    }
     else if (scancode == F3_SCANCODE)
-    {
-        vga_print("yes F3 !!");
         terminal_switch(2);
-    }
     else if (scancode == F4_SCANCODE)
-    {
-        vga_print("yes F4 !!");
         terminal_switch(3);
-    }
     else if (scancode == F5_SCANCODE)
-    {
-        vga_print("yes color changed!!");
         terminal_change_color();
-    }
     else
     {
         character = scancode_to_char(scancode);

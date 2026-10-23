@@ -10,5 +10,5 @@ void kernel_main() {
     idt_init();
     asm volatile ("sti");
     init_terminals();
-    vga_print("42");
+    puts("42");
 }

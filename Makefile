@@ -16,6 +16,8 @@ ISO    = $(BUILD_DIR)/mykernel.iso
 
 ASM_SRCS = boot.asm isr_stub.asm
 C_SRCS   = kernel.c vga.c io.c idt.c isr.c keyboard.c
+HDRS 	 = idt.h io.h keyboard.h screen.h
+HDRS 	 := $(addprefix $(INC_DIR)/,$(HDRS))
 
 ASM_OBJS = $(ASM_SRCS:%.asm=$(BUILD_DIR)/%.o)
 C_OBJS   = $(C_SRCS:%.c=$(BUILD_DIR)/%.o)
@@ -26,7 +28,7 @@ all: $(KERNEL) iso
 $(KERNEL): $(OBJS) linker.ld
 	$(LD) $(LDFLAGS) -o $@ $(OBJS)
 
-$(BUILD_DIR)/%.o: $(SRC_DIR)/%.c | $(BUILD_DIR)
+$(BUILD_DIR)/%.o: $(SRC_DIR)/%.c $(HDRS) | $(BUILD_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.asm | $(BUILD_DIR)

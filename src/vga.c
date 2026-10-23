@@ -63,10 +63,17 @@ void vga_putchar(char c)
     vga_update_cursor();
 }
 
+void puts(const char *s)
+{
+    vga_print(s);
+}
+
 void vga_print(const char *s)
 {
-    for (; *s; s++)
-        vga_putchar(*s);
+    if(!s)
+        return;
+    while(*s)
+        vga_putchar(*(s++));
 }
 
 void vga_clear(void)
@@ -91,10 +98,8 @@ void terminal_change_color(void) {
     uint8_t fg = (terminal_color + 1) & 0x0F;
     
     /* If the foreground becomes 1 (blue text on blue background), skip to 2 (green) */
-    if (fg == 1) {
+    if (fg == 1)
         fg = 2;
-    }
-    
     /* Combine the blue background (0x10) with the new foreground color */
     terminal_color = 0x10 | fg;
 }
