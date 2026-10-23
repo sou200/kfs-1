@@ -2,10 +2,10 @@ bits 32
 section .text
 
 global IRQ0, IRQ1
-extern IRQ_handler          ; void IRQ_handler(int n)
+extern IRQ_handler
 
 IRQ0:
-    push dword 32           ; vector number
+    push dword 32 
     jmp IRQ_common
 
 IRQ1:
@@ -13,10 +13,10 @@ IRQ1:
     jmp IRQ_common
 
 IRQ_common:
-    pusha                   ; save all registers
-    push dword [esp + 32]   ; copy vector number as C argument
+    pusha
+    push dword [esp + 32]
     call IRQ_handler
     add esp, 4
-    popa                    ; restore registers
-    add esp, 4              ; drop vector number
-    iret                    ; return from interrupt
+    popa
+    add esp, 4
+    iret

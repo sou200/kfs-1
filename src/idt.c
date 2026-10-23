@@ -1,4 +1,3 @@
-/* idt.c - simplest possible IDT (works with isr.asm) */
 #include <stdint.h>
 
 struct idt_entry {
@@ -14,7 +13,7 @@ struct idt_ptr {
     uint32_t base;
 } __attribute__((packed));
 
-extern void IRQ0(void);     /* stubs from isr.asm */
+extern void IRQ0(void);
 extern void IRQ1(void);
 
 static struct idt_entry idt[256];
@@ -27,12 +26,12 @@ static void idt_set_gate(int n, void (*handler)(void), uint16_t sel) {
     idt[n].base_hi  = addr >> 16;
     idt[n].selector = sel;
     idt[n].zero     = 0;
-    idt[n].flags    = 0x8E;     /* present, ring 0, interrupt gate */
+    idt[n].flags    = 0x8E;      // present, ring 0, interrupt gate
 }
 
 void idt_init(void) {
     uint16_t cs;
-    asm volatile ("mov %%cs, %0" : "=r"(cs));   /* GRUB's code selector */
+    asm volatile ("mov %%cs, %0" : "=r"(cs));
 
     idt_set_gate(32, IRQ0, cs);
     idt_set_gate(33, IRQ1, cs);

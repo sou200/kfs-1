@@ -129,7 +129,6 @@ void init_terminals() {
 
     for (int term = 1; term < 4; term++)
     {
-        /* Save current VGA memory and cursor to the active screen's backup */
         for (int i = 0; i < VGA_WIDTH * VGA_HEIGHT; i++) {
             screen_buffers[term][i] = ((uint16_t)VGA_COLOR_WHITE_BLUE << 8) | ' ';
         }
