@@ -44,8 +44,8 @@ $(ISO): $(KERNEL) boot/grub/grub.cfg
 	mkdir -p $(ISODIR)/boot/grub
 	cp $(KERNEL) $(ISODIR)/boot/kernel.bin
 	cp boot/grub/grub.cfg $(ISODIR)/boot/grub/grub.cfg
-# 	grub-mkrescue -d $$HOME/.local/usr/lib/grub/i386-pc -o $@ --install-modules="multiboot" --fonts="" --themes="" --locales="" --compress=xz $(ISODIR)
-	grub-mkrescue -o $@ --install-modules="multiboot" --fonts="" --themes="" --locales="" --compress=xz $(ISODIR)
+	grub-mkrescue -d $$HOME/.local/usr/lib/grub/i386-pc -o $@ --install-modules="multiboot" --fonts="" --themes="" --locales="" --compress=xz $(ISODIR)
+# 	grub-mkrescue -o $@ --install-modules="multiboot" --fonts="" --themes="" --locales="" --compress=xz $(ISODIR)
 
 run: $(ISO)
 	qemu-system-i386 -cdrom $(ISO) -m 512

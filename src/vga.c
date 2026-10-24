@@ -8,7 +8,7 @@ int cursor_col = 0;
 
 uint16_t screen_buffers[NUM_SCREENS][VGA_WIDTH * VGA_HEIGHT];
 int cursor_x[NUM_SCREENS];
-int cursor_y[NUM_SCREENS]; 
+int cursor_y[NUM_SCREENS];
 uint8_t terminal_color = 0X1F;
 int cursor_x[NUM_SCREENS];
 int cursor_y[NUM_SCREENS];

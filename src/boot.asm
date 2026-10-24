@@ -24,6 +24,7 @@ idle:
     jmp idle
 
 _start:
-    mov esp, stack_top
+    mov ebp, stack_top
+    mov esp, ebp
     call kernel_main
     jmp idle

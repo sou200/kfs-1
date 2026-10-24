@@ -63,7 +63,7 @@ void keyboard_handler()
     uint8_t scancode;
     uint8_t character;
     asm volatile ("inb %1, %0" : "=a"(scancode) : "Nd"(KEYBOARD_SCANCODE));
-    
+
     if (scancode == F1_SCANCODE)
         terminal_switch(0);
     else if (scancode == F2_SCANCODE)
