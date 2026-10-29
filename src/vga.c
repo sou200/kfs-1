@@ -1,4 +1,7 @@
 #include <stdint.h>
+#include <stdint.h>
+#include <stddef.h>
+#include <stdarg.h> // Provided by GCC even with -nostdlib
 #include "screen.h"
 #include "io.h"
 
@@ -63,9 +66,82 @@ void vga_putchar(char c)
     vga_update_cursor();
 }
 
-void puts(const char *s)
-{
-    vga_print(s);
+static void print_number(uint32_t num, int base, int is_signed) {
+    char buffer[32];
+    const char *digits = "0123456789abcdef";
+    int i = 0;
+    int is_negative = 0;
+
+    if (is_signed && base == 10 && (int32_t)num < 0) {
+        is_negative = 1;
+        num = (uint32_t)(-(int32_t)num);
+    }
+
+    if (num == 0) {
+        buffer[i++] = '0';
+    }
+
+    while (num > 0) {
+        buffer[i++] = digits[num % base];
+        num /= base;
+    }
+
+    if (is_negative) {
+        buffer[i++] = '-';
+    }
+
+    // Reverse the string and print it
+    while (--i >= 0) {
+        vga_putchar(buffer[i]);
+    }
+}
+
+void puts(const char *format, ...) {
+    va_list args;
+    va_start(args, format);
+
+    for (size_t i = 0; format[i] != '\0'; i++) {
+        if (format[i] == '%' && format[i + 1] != '\0') {
+            i++; // Skip the '%'
+            switch (format[i]) {
+                case 'c': {
+                    // char is promoted to int in variadic arguments
+                    char c = (char)va_arg(args, int);
+                    vga_putchar(c);
+                    break;
+                }
+                case 's': {
+                    const char *s = va_arg(args, const char *);
+                    vga_print(s ? s : "(null)");
+                    break;
+                }
+                case 'd': {
+                    int num = va_arg(args, int);
+                    print_number(num, 10, 1);
+                    break;
+                }
+                case 'x': {
+                    uint32_t num = va_arg(args, uint32_t);
+                    print_number(num, 16, 0);
+                    break;
+                }
+                case '%': {
+                    vga_putchar('%');
+                    break;
+                }
+                default: {
+                    // If it's an unsupported format, just print it as-is
+                    vga_putchar('%');
+                    vga_putchar(format[i]);
+                    break;
+                }
+            }
+        } else {
+            vga_putchar(format[i]);
+        }
+    }
+
+    va_end(args);
 }
 
 void vga_print(const char *s)

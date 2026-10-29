@@ -44,10 +44,10 @@ char scancode_to_char(uint8_t sc)
     int released = sc & 0x80;
     if (released)
         return 0;
+        
     if (sc == 0x0E)
     {
-        vga_backspace();
-        return 0;
+        return '\b'; // Pass backspace to the shell!
     }
 
     if (sc == 0x3A) {
@@ -58,11 +58,19 @@ char scancode_to_char(uint8_t sc)
     return caps_lock ? shifted[sc] : normal[sc];
 }
 
+// Make sure to declare handle_keypress so this file knows it exists
+extern void handle_keypress(char ascii);
+
 void keyboard_handler()
 {
     uint8_t scancode;
     uint8_t character;
     asm volatile ("inb %1, %0" : "=a"(scancode) : "Nd"(KEYBOARD_SCANCODE));
+
+    // FIX 1: Ignore key releases (break codes)
+    if (scancode & 0x80) {
+        return; // Do nothing on key release
+    }
 
     if (scancode == F1_SCANCODE)
         terminal_switch(0);
@@ -77,8 +85,10 @@ void keyboard_handler()
     else
     {
         character = scancode_to_char(scancode);
-        if (character)
-            vga_putchar(character);
+        if (character) {
+            // FIX 2: Send the character to the shell!
+            // handle_keypress will take care of printing it AND buffering it.
+            handle_keypress(character); 
+        }
     }
-
 }

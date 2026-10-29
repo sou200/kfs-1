@@ -14,9 +14,9 @@ LDFLAGS   = -m elf_i386 -T linker.ld
 KERNEL = $(BUILD_DIR)/kernel.bin
 ISO    = $(BUILD_DIR)/mykernel.iso
 
-ASM_SRCS = boot.asm isr_stub.asm
-C_SRCS   = kernel.c vga.c io.c idt.c isr.c keyboard.c
-HDRS 	 = idt.h io.h keyboard.h screen.h
+ASM_SRCS = boot.asm isr_stub.asm gdt_flush.asm
+C_SRCS   = kernel.c vga.c io.c idt.c isr.c keyboard.c gdt.c cmd.c
+HDRS 	 = idt.h io.h keyboard.h screen.h gdt.h cmd.h
 HDRS 	 := $(addprefix $(INC_DIR)/,$(HDRS))
 
 ASM_OBJS = $(ASM_SRCS:%.asm=$(BUILD_DIR)/%.o)
