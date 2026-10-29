@@ -8,6 +8,15 @@
 static char cmd_buffer[BUFFER_SIZE];
 static int cmd_index = 0;
 
+#define HELP_MSG "Available Commands\n\
+\n\
+  help        Show this help message\n\
+  halt        Halt the system\n\
+  reboot       Reboot the system\n\
+  stack       Display the current stack contents\n\
+\n\
+Type 'help' to list available commands.\n"
+
 // A simple string comparison helper
 int strcmp(const char *s1, const char *s2) {
     while (*s1 && (*s1 == *s2)) {
@@ -49,6 +58,8 @@ void execute_command(char *cmd) {
     else if (strcmp(cmd, "halt") == 0) {
         puts("Halting system...\n");
         __asm__ volatile("cli; hlt"); // Disable interrupts and halt CPU
+    }  else if (strcmp(cmd, "help") == 0) {
+        puts(HELP_MSG);
     } 
     else if (strcmp(cmd, "reboot") == 0) {
         puts("Rebooting...\n");
@@ -70,5 +81,6 @@ void execute_command(char *cmd) {
             puts("[%x] ", (uint8_t)cmd[i]); 
         }
         puts("\n");
+        puts("Type 'help' to list available commands.\n");
     }
 }
