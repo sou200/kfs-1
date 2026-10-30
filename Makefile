@@ -15,7 +15,7 @@ KERNEL = $(BUILD_DIR)/kernel.bin
 ISO    = $(BUILD_DIR)/mykernel.iso
 
 ASM_SRCS = boot.asm isr_stub.asm gdt_flush.asm
-C_SRCS   = kernel.c vga.c io.c idt.c isr.c keyboard.c gdt.c cmd.c
+C_SRCS   = kernel.c vga.c io.c idt.c isr.c keyboard.c gdt.c cmd.c stack_print.c
 HDRS 	 = idt.h io.h keyboard.h screen.h gdt.h cmd.h
 HDRS 	 := $(addprefix $(INC_DIR)/,$(HDRS))
 

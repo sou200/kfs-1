@@ -5,6 +5,8 @@
 #include "gdt.h"
 #include "io.h"
 
+extern void dump_stack(uint32_t esp, uint32_t ebp);
+
 static char cmd_buffer[BUFFER_SIZE];
 static int cmd_index = 0;
 
@@ -72,26 +74,20 @@ void handle_keypress(char ascii) {
 
 void execute_command(char *cmd) {
     cmd = trim_command(cmd);
+    uint32_t esp, ebp;
     if (cmd[0] == '\0') {
         return;
     }
     
     if (strcmp(cmd, "stack") == 0) {
-        print_stack(12);
-    } else if (cmd[0] == 's' && cmd[1] == 't' && cmd[2] == 'a' &&
-               cmd[3] == 'c' && cmd[4] == 'k' &&
-               (cmd[5] == ' ' || cmd[5] == '\t')) {
-        uint32_t count = stack_word_count(cmd + 5);
-        if (count == 0) {
-            printk("Usage: stack [positive number of words]\n");
-        } else {
-            print_stack(count);
-        }
+        __asm__ volatile ("mov %%esp, %0" : "=r"(esp));
+        __asm__ volatile ("mov %%ebp, %0" : "=r"(ebp));
+        dump_stack(esp, ebp);
     } 
     else if (strcmp(cmd, "halt") == 0) {
-        printk("Halting system...\n");
-        __asm__ volatile("cli; hlt");
-    } 
+        puts("Halting system...\n");
+        __asm__ volatile("cli; hlt"); // Disable interrupts and halt CPU
+    }
     else if (strcmp(cmd, "reboot") == 0) {
         uint32_t retries = 1000000;
 
