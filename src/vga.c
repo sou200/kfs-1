@@ -1,7 +1,6 @@
 #include <stdint.h>
-#include <stdint.h>
 #include <stddef.h>
-#include <stdarg.h> // Provided by GCC even with -nostdlib
+#include <stdarg.h>
 #include "screen.h"
 #include "io.h"
 
@@ -12,9 +11,7 @@ int cursor_col = 0;
 uint16_t screen_buffers[NUM_SCREENS][VGA_WIDTH * VGA_HEIGHT];
 int cursor_x[NUM_SCREENS];
 int cursor_y[NUM_SCREENS];
-uint8_t terminal_color = 0X1F;
-int cursor_x[NUM_SCREENS];
-int cursor_y[NUM_SCREENS];
+uint8_t terminal_color = VGA_COLOR_WHITE_BLUE;
 int active_screen = 0;
 
 static void vga_scroll(void)
@@ -74,7 +71,7 @@ static void print_number(uint32_t num, int base, int is_signed) {
 
     if (is_signed && base == 10 && (int32_t)num < 0) {
         is_negative = 1;
-        num = (uint32_t)(-(int32_t)num);
+        num = 0u - num;
     }
 
     if (num == 0) {
@@ -96,10 +93,7 @@ static void print_number(uint32_t num, int base, int is_signed) {
     }
 }
 
-void puts(const char *format, ...) {
-    va_list args;
-    va_start(args, format);
-
+void vprintk(const char *format, va_list args) {
     for (size_t i = 0; format[i] != '\0'; i++) {
         if (format[i] == '%' && format[i + 1] != '\0') {
             i++; // Skip the '%'
@@ -141,6 +135,12 @@ void puts(const char *format, ...) {
         }
     }
 
+}
+
+void printk(const char *format, ...) {
+    va_list args;
+    va_start(args, format);
+    vprintk(format, args);
     va_end(args);
 }
 
@@ -162,7 +162,14 @@ void vga_clear(void)
 
 void vga_backspace(void)
 {
-    cursor_col--;
+    if (cursor_col > 0) {
+        cursor_col--;
+    } else if (cursor_row > 0) {
+        cursor_row--;
+        cursor_col = VGA_WIDTH - 1;
+    } else {
+        return;
+    }
     vga[cursor_row * VGA_WIDTH + cursor_col] =
         ((uint16_t)VGA_COLOR_WHITE_BLUE << 8) | ' ';
     vga_update_cursor();
@@ -207,12 +214,16 @@ void terminal_switch(int new_screen) {
 }
 
 void init_terminals() {
-
-    for (int term = 1; term < 4; term++)
+    for (int term = 0; term < NUM_SCREENS; term++)
     {
         for (int i = 0; i < VGA_WIDTH * VGA_HEIGHT; i++) {
             screen_buffers[term][i] = ((uint16_t)VGA_COLOR_WHITE_BLUE << 8) | ' ';
         }
     }
-    vga_clear();
+    active_screen = 0;
+    cursor_row = 0;
+    cursor_col = 0;
+    for (int i = 0; i < VGA_WIDTH * VGA_HEIGHT; i++)
+        vga[i] = screen_buffers[0][i];
+    vga_update_cursor();
 }

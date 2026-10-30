@@ -11,8 +11,10 @@ align 4
     dd CHECKSUM
 
 section .bss
+global stack_bottom
 stack_bottom:
     resb 16384              ; 16 KiB stack
+global stack_top
 stack_top:
 
 section .text

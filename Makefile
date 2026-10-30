@@ -7,7 +7,7 @@ INC_DIR   = include
 BUILD_DIR = build
 ISODIR    = $(BUILD_DIR)/isodir
 
-CFLAGS    = -m32 -ffreestanding -O2 -Wall -Wextra -I$(INC_DIR)
+CFLAGS    = -m32 -ffreestanding -O2 -Wall -Wextra -fno-builtin -fno-stack-protector -nostdlib -nodefaultlibs -I$(INC_DIR)
 NASMFLAGS = -f elf32
 LDFLAGS   = -m elf_i386 -T linker.ld
 

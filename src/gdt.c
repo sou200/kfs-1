@@ -1,7 +1,6 @@
 #include <stdint.h>
 #include "screen.h"
 
-// Defines one GDT entry (8 bytes)
 struct gdt_entry {
     uint16_t limit_low;
     uint16_t base_low;
@@ -11,7 +10,6 @@ struct gdt_entry {
     uint8_t  base_high;
 } __attribute__((packed));
 
-// Defines the pointer to the GDT (6 bytes)
 struct gdt_ptr {
     uint16_t limit;
     uint32_t base;
@@ -20,7 +18,6 @@ struct gdt_ptr {
 
 
 void gdt_set_gate(int num, uint32_t base, uint32_t limit, uint8_t access, uint8_t gran) {
-    // Point exactly to address 0x800
     struct gdt_entry *gdt = (struct gdt_entry *)0x00000800;
     
     gdt[num].base_low    = (base & 0xFFFF);
@@ -49,30 +46,59 @@ void init_gdt() {
     gdt_set_gate(5, 0, 0xFFFFFFFF, 0xF2, 0xCF); // User Data 
     gdt_set_gate(6, 0, 0xFFFFFFFF, 0xF6, 0xCF); // User Stack
 
-    // Call the assembly function to flush the CPU registers
     gdt_flush((uint32_t)&gp);
 }
 
+extern uint8_t stack_bottom[];
+extern uint8_t stack_top[];
 
-void print_stack() {
+void print_stack(uint32_t max_words) {
     uint32_t *esp, *ebp;
+    uint32_t *stack_start = (uint32_t *)stack_bottom;
+    uint32_t *stack_end = (uint32_t *)stack_top;
+    uint32_t *current;
+    uint32_t *upper_bound;
+    uint32_t words = 0;
+    uint32_t available_words;
 
-    // Grab current registers
+    if (max_words == 0)
+        max_words = 12;
+    else if (max_words > 256)
+        max_words = 256;
+
     __asm__ volatile("mov %%esp, %0" : "=r"(esp));
     __asm__ volatile("mov %%ebp, %0" : "=r"(ebp));
 
-    // Ensure you have a puts function ready to format hex!
-    puts("--- Kernel Stack Dump ---\n");
-    puts("ESP: 0x%x | EBP: 0x%x\n", (uint32_t)esp, (uint32_t)ebp);
-    
-    // The stack grows downward, so ESP is lower than EBP in memory.
-    // We print from the top of the frame (ESP) down to the base (EBP).
-    uint32_t *current = esp;
-    while (current <= ebp) {
-        puts("[0x%x]: 0x%x\n", (uint32_t)current, *current);
-        current++; // Move up in memory (down the stack)
+    printk("--- Kernel Stack Dump ---\n");
+    printk("ESP: 0x%x | EBP: 0x%x\n", (uint32_t)esp, (uint32_t)ebp);
+
+    if (esp < stack_start || esp >= stack_end || ebp < esp) {
+        printk("Stack frame is outside the bootstrap stack.\n");
+        printk("-------------------------\n");
+        return;
     }
-    puts("-------------------------\n");
+
+    current = esp;
+    if (ebp > esp && ebp < stack_end) {
+        upper_bound = ebp;
+    } else {
+        upper_bound = stack_end - 1;
+        printk("EBP frame window unavailable; using stack top bound.\n");
+    }
+
+    available_words = (uint32_t)(upper_bound - current) + 1;
+    if (available_words > max_words)
+        available_words = max_words;
+
+    while (words < available_words) {
+        printk("[0x%x]: 0x%x\n", (uint32_t)current, *current);
+        current++;
+        words++;
+    }
+    if (current <= upper_bound)
+        printk("... %d more stack words omitted (use 'stack N').\n",
+               (int32_t)(upper_bound - current + 1));
+    printk("-------------------------\n");
 }
 
 

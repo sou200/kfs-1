@@ -2,6 +2,7 @@
 #define SCREEN_H
 
 #include <stdint.h>
+#include <stdarg.h>
 
 #define VGA_WIDTH  80
 #define VGA_HEIGHT 25
@@ -15,6 +16,7 @@ void vga_backspace(void);
 void terminal_switch(int new_screen);
 void terminal_change_color(void);
 void init_terminals(void);
-void puts(const char *format, ...);
+void vprintk(const char *format, va_list args);
+void printk(const char *format, ...);
 
 #endif

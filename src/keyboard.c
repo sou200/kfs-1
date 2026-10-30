@@ -41,8 +41,7 @@ static int caps_lock  = 0;
 
 char scancode_to_char(uint8_t sc)
 {
-    int released = sc & 0x80;
-    if (released)
+    if ((sc & 0x80) != 0 || sc >= 128)
         return 0;
         
     if (sc == 0x0E)
@@ -67,9 +66,8 @@ void keyboard_handler()
     uint8_t character;
     asm volatile ("inb %1, %0" : "=a"(scancode) : "Nd"(KEYBOARD_SCANCODE));
 
-    // FIX 1: Ignore key releases (break codes)
     if (scancode & 0x80) {
-        return; // Do nothing on key release
+        return;
     }
 
     if (scancode == F1_SCANCODE)
@@ -86,9 +84,7 @@ void keyboard_handler()
     {
         character = scancode_to_char(scancode);
         if (character) {
-            // FIX 2: Send the character to the shell!
-            // handle_keypress will take care of printing it AND buffering it.
-            handle_keypress(character); 
+            handle_keypress(character);
         }
     }
 }
