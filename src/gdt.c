@@ -49,56 +49,5 @@ void init_gdt() {
     gdt_flush((uint32_t)&gp);
 }
 
-extern uint8_t stack_bottom[];
-extern uint8_t stack_top[];
-
-void print_stack(uint32_t max_words) {
-    uint32_t *esp, *ebp;
-    uint32_t *stack_start = (uint32_t *)stack_bottom;
-    uint32_t *stack_end = (uint32_t *)stack_top;
-    uint32_t *current;
-    uint32_t *upper_bound;
-    uint32_t words = 0;
-    uint32_t available_words;
-
-    if (max_words == 0)
-        max_words = 12;
-    else if (max_words > 256)
-        max_words = 256;
-
-    __asm__ volatile("mov %%esp, %0" : "=r"(esp));
-    __asm__ volatile("mov %%ebp, %0" : "=r"(ebp));
-
-    printk("--- Kernel Stack Dump ---\n");
-    printk("ESP: 0x%x | EBP: 0x%x\n", (uint32_t)esp, (uint32_t)ebp);
-
-    if (esp < stack_start || esp >= stack_end || ebp < esp) {
-        printk("Stack frame is outside the bootstrap stack.\n");
-        printk("-------------------------\n");
-        return;
-    }
-
-    current = esp;
-    if (ebp > esp && ebp < stack_end) {
-        upper_bound = ebp;
-    } else {
-        upper_bound = stack_end - 1;
-        printk("EBP frame window unavailable; using stack top bound.\n");
-    }
-
-    available_words = (uint32_t)(upper_bound - current) + 1;
-    if (available_words > max_words)
-        available_words = max_words;
-
-    while (words < available_words) {
-        printk("[0x%x]: 0x%x\n", (uint32_t)current, *current);
-        current++;
-        words++;
-    }
-    if (current <= upper_bound)
-        printk("... %d more stack words omitted (use 'stack N').\n",
-               (int32_t)(upper_bound - current + 1));
-    printk("-------------------------\n");
-}
 
 

@@ -34,22 +34,6 @@ static char *trim_command(char *cmd)
     return cmd;
 }
 
-static uint32_t stack_word_count(const char *argument)
-{
-    uint32_t value = 0;
-
-    while (*argument == ' ' || *argument == '\t')
-        argument++;
-    while (*argument >= '0' && *argument <= '9') {
-        value = value * 10 + (uint32_t)(*argument - '0');
-        argument++;
-    }
-    while (*argument == ' ' || *argument == '\t')
-        argument++;
-
-    return *argument == '\0' ? value : 0;
-}
-
 void handle_keypress(char ascii) {
     if (ascii == '\n' || ascii == '\r') {
         vga_putchar('\n');
@@ -85,7 +69,7 @@ void execute_command(char *cmd) {
         dump_stack(esp, ebp);
     } 
     else if (strcmp(cmd, "halt") == 0) {
-        puts("Halting system...\n");
+        printk("Halting system...\n");
         __asm__ volatile("cli; hlt"); // Disable interrupts and halt CPU
     }
     else if (strcmp(cmd, "reboot") == 0) {

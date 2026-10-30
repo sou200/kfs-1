@@ -61,6 +61,6 @@ void dump_stack(uint32_t start, uint32_t end)
 
         *(p++) = '\n';
         *p = '\0';
-        puts(line);
+        printk("%s", line);
     }
 }
