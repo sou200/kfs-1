@@ -5,6 +5,8 @@
 #include "gdt.h"
 #include "io.h"
 
+extern void dump_stack(uint32_t esp, uint32_t ebp);
+
 static char cmd_buffer[BUFFER_SIZE];
 static int cmd_index = 0;
 
@@ -48,12 +50,15 @@ void handle_keypress(char ascii) {
 }
 
 void execute_command(char *cmd) {
+    uint32_t esp, ebp;
     if (cmd[0] == '\0') {
         return; // Empty command, do nothing
     }
     
     if (strcmp(cmd, "stack") == 0) {
-        print_stack(); // Your mandatory stack dumper from earlier
+        __asm__ volatile ("mov %%esp, %0" : "=r"(esp));
+        __asm__ volatile ("mov %%ebp, %0" : "=r"(ebp));
+        dump_stack(esp, ebp);
     } 
     else if (strcmp(cmd, "halt") == 0) {
         puts("Halting system...\n");
