@@ -73,10 +73,12 @@ void execute_command(char *cmd) {
         __asm__ volatile("cli; hlt"); // Disable interrupts and halt CPU
     }
     else if (strcmp(cmd, "reboot") == 0) {
-        uint32_t retries = 1000000;
+        uint32_t retries = 10;
 
         printk("Rebooting...\n");
-        while ((inb(0x64) & 0x02) != 0 && retries-- != 0) {
+        while ((inb(0x64) & 0x02) != 0 && retries-- != 0) { 
+            // inb(0x64) it must be X X X X X X 0 X to contunue
+            io_wait();
         }
         if (retries == 0) {
             printk("Keyboard controller did not become ready.\n");
@@ -101,9 +103,12 @@ void execute_command(char *cmd) {
         printk("  help   - Show this list of commands\n");
         printk("  clear  - Clear the terminal screen\n");
         printk("  echo   - Print text back to the screen\n");
-        printk("  stack  - Display the current kernel stack trace / pointer\n");
+        printk("  stack  - Display the current kernel stack trace\n");
         printk("  halt   - Stop CPU execution safely\n");
         printk("  reboot - Restart the system via keyboard controller\n");
+        
+        printk("\nKeyboard Shortcuts:\n");
+        printk("  F1     - Cycle terminal font color\n");
     }
     else {
         printk("Unknown command: %s. Type 'help' for a list of commands.\n", cmd);

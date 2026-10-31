@@ -71,14 +71,6 @@ void keyboard_handler()
     }
 
     if (scancode == F1_SCANCODE)
-        terminal_switch(0);
-    else if (scancode == F2_SCANCODE)
-        terminal_switch(1);
-    else if (scancode == F3_SCANCODE)
-        terminal_switch(2);
-    else if (scancode == F4_SCANCODE)
-        terminal_switch(3);
-    else if (scancode == F5_SCANCODE)
         terminal_change_color();
     else
     {

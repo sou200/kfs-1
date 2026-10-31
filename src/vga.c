@@ -8,11 +8,7 @@ volatile uint16_t *const vga = (volatile uint16_t *)0xB8000;
 int cursor_row = 0;
 int cursor_col = 0;
 
-uint16_t screen_buffers[NUM_SCREENS][VGA_WIDTH * VGA_HEIGHT];
-int cursor_x[NUM_SCREENS];
-int cursor_y[NUM_SCREENS];
 uint8_t terminal_color = VGA_COLOR_WHITE_BLUE;
-int active_screen = 0;
 
 static void vga_scroll(void)
 {
@@ -187,43 +183,37 @@ void terminal_change_color(void) {
     terminal_color = 0x10 | fg;
 }
 
-void terminal_switch(int new_screen) {
-    if (new_screen < 0 || new_screen >= NUM_SCREENS || new_screen == active_screen) {
-        return;
-    }
+// void terminal_switch(int new_screen) {
+//     if (new_screen < 0 || new_screen >= NUM_SCREENS || new_screen == active_screen) {
+//         return;
+//     }
 
-    /* Save current VGA memory and cursor to the active screen's backup */
-    for (int i = 0; i < VGA_WIDTH * VGA_HEIGHT; i++) {
-        screen_buffers[active_screen][i] = vga[i];
-    }
-    cursor_x[active_screen] = cursor_col;
-    cursor_y[active_screen] = cursor_row;
+//     /* Save current VGA memory and cursor to the active screen's backup */
+//     for (int i = 0; i < VGA_WIDTH * VGA_HEIGHT; i++) {
+//         screen_buffers[active_screen][i] = vga[i];
+//     }
+//     cursor_x[active_screen] = cursor_col;
+//     cursor_y[active_screen] = cursor_row;
 
-    /* Update the active screen index */
-    active_screen = new_screen;
+//     /* Update the active screen index */
+//     active_screen = new_screen;
 
-    /* Load the new screen's backup into physical VGA memory */
-    for (int i = 0; i < VGA_WIDTH * VGA_HEIGHT; i++) {
-        vga[i] = screen_buffers[active_screen][i];
-    }
-    cursor_col = cursor_x[active_screen];
-    cursor_row = cursor_y[active_screen];
+//     /* Load the new screen's backup into physical VGA memory */
+//     for (int i = 0; i < VGA_WIDTH * VGA_HEIGHT; i++) {
+//         vga[i] = screen_buffers[active_screen][i];
+//     }
+//     cursor_col = cursor_x[active_screen];
+//     cursor_row = cursor_y[active_screen];
 
-    /* Move the hardware cursor to match the new screen */
-    vga_update_cursor();
-}
+//     /* Move the hardware cursor to match the new screen */
+//     vga_update_cursor();
+// }
 
-void init_terminals() {
-    for (int term = 0; term < NUM_SCREENS; term++)
-    {
-        for (int i = 0; i < VGA_WIDTH * VGA_HEIGHT; i++) {
-            screen_buffers[term][i] = ((uint16_t)VGA_COLOR_WHITE_BLUE << 8) | ' ';
-        }
-    }
-    active_screen = 0;
-    cursor_row = 0;
-    cursor_col = 0;
-    for (int i = 0; i < VGA_WIDTH * VGA_HEIGHT; i++)
-        vga[i] = screen_buffers[0][i];
-    vga_update_cursor();
-}
+// void init_terminals() {
+//     active_screen = 0;
+//     cursor_row = 0;
+//     cursor_col = 0;
+//     for (int i = 0; i < VGA_WIDTH * VGA_HEIGHT; i++)
+//         vga[i] = screen_buffers[0][i];
+//     vga_update_cursor();
+// }

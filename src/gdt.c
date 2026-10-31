@@ -45,7 +45,28 @@ void init_gdt() {
     gdt_set_gate(4, 0, 0xFFFFFFFF, 0xFA, 0xCF); // User Code 
     gdt_set_gate(5, 0, 0xFFFFFFFF, 0xF2, 0xCF); // User Data 
     gdt_set_gate(6, 0, 0xFFFFFFFF, 0xF6, 0xCF); // User Stack
+    /*
+        Granularity :
 
+            0xCF == 1 1 0 0 1 1 1 1
+                    7 6 5 4 3 2 1 0
+
+            Bit 7 (1): Granularity flag. 1 means the limit 
+                        is multiplied by 4 KB blocks. (A limit 
+                        of 0xFFFFF blocks * 4 KB = 4 GB of total 
+                        addressable memory).
+
+            Bit 6 (1): Size flag. 1 means this is a 32-bit 
+                        Protected Mode segment.
+
+            Bit 5 (0): 64-bit flag (0 because KFS is 32-bit).
+
+            Bit 4 (0): Available for system use (unused).
+
+            Bits 0-3 (1111 / 0xF): These are the top 4 bits of your
+                                    0xFFFFFFFF limit, merged into the 
+                                    lower half of this byte.
+    */
     gdt_flush((uint32_t)&gp);
 }
 

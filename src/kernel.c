@@ -10,10 +10,10 @@ void kernel_main() {
     asm volatile ("cli");
     
     // 2. Initialize core hardware
-    init_terminals();      // Screen
     pic_remap(0x20, 0x28); // PIC 
     init_gdt();            // GDT
-    idt_init();            // IDT (make sure your keyboard ISR is registered here!)
+    idt_init();             // IDT (make sure your keyboard ISR is registered here!)
+    vga_clear();          
     
     // 3. Re-enable interrupts so the keyboard can talk to the CPU
     asm volatile ("sti");
