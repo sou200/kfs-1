@@ -1,7 +1,5 @@
-#include <stdint.h>
 #include "screen.h"
-
-#include <stdint.h>
+#include "helper.h"
 
 
 static const char hex_digits[] = "0123456789abcdef";
@@ -28,7 +26,7 @@ void dump_stack(uint32_t start, uint32_t end)
     }
 
     for (uint32_t addr = start; addr < end; addr += 16) {
-        char line[80 + 1];
+        char line[80];
         char *p = line;
 
         uint32_t n = end - addr;      /* bytes left */
@@ -58,9 +56,7 @@ void dump_stack(uint32_t start, uint32_t end)
             uint8_t c = *(volatile uint8_t *)(addr + i);
             *p++ = (c >= 0x20 && c <= 0x7E) ? (char)c : '.';
         }
-
-        *(p++) = '\n';
         *p = '\0';
-        printk("%s", line);
+        printk("%s\n", line);
     }
 }

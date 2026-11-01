@@ -16,7 +16,5 @@ void vga_backspace(void);
 void terminal_switch(int new_screen);
 void terminal_change_color(void);
 void init_terminals(void);
-void vprintk(const char *format, va_list args);
-void printk(const char *format, ...);
 
 #endif

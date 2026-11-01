@@ -4,35 +4,12 @@
 #include "cmd.h"
 #include "gdt.h"
 #include "io.h"
+#include "helper.h"
 
 extern void dump_stack(uint32_t esp, uint32_t ebp);
 
 static char cmd_buffer[BUFFER_SIZE];
 static int cmd_index = 0;
-
-int strcmp(const char *s1, const char *s2) {
-    while (*s1 && (*s1 == *s2)) {
-        s1++; s2++;
-    }
-    return *(const unsigned char *)s1 - *(const unsigned char *)s2;
-}
-
-static char *trim_command(char *cmd)
-{
-    char *end;
-
-    while (*cmd == ' ' || *cmd == '\t')
-        cmd++;
-
-    end = cmd;
-    while (*end != '\0')
-        end++;
-
-    while (end > cmd && (end[-1] == ' ' || end[-1] == '\t'))
-        end--;
-    *end = '\0';
-    return cmd;
-}
 
 void handle_keypress(char ascii) {
     if (ascii == '\n' || ascii == '\r') {
